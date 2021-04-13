@@ -12,4 +12,3 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
-def create
