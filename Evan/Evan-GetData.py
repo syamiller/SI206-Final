@@ -27,6 +27,8 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
+    # DONE
+
 def createCountriesTable():
     '''
     This will create a cross reference table for the top 60 countries in soccer
@@ -49,6 +51,7 @@ def createCountriesTable():
         cur.execute('INSERT OR IGNORE INTO Countries (title) VALUES (?)', (title,))
         conn.commit()
 
+    # DONE
     # now we wont have duplicate strings when creating player database
     
 def createPlayers():

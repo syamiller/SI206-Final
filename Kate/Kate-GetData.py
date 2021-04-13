@@ -23,6 +23,8 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
+    # DONE
+
 
 def createWarriorsTable():
     '''
