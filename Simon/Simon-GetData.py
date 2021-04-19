@@ -81,8 +81,6 @@ def create_table():
 
     url = "https://mlb-data.p.rapidapi.com/json/named.sport_pitching_tm.bam"
     count = 0
-    print(start)
-    print(end)
     for i in range(start, end):
         player_id = cur.execute('SELECT player_id FROM IDs WHERE id = ?', (i,)).fetchone()[0]
         
