@@ -110,7 +110,6 @@ def createRocketsTable():
     # Do same thing as above but for Rockets (team_ids[]=11) in url now
     # make sure to create new table for them
     cur, conn = setUpDatabase('balldontlie.db')
-    cur.execute('drop table Rockets')
     cur.execute('CREATE TABLE IF NOT EXISTS Rockets (game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score INTEGER)')
     base_url = 'https://balldontlie.io/api/v1/games?seasons[]=2018&team_ids[]=11&seasons[]=2017&postseason=false&page={}'
 
