@@ -33,7 +33,7 @@ def createWarriorsTable():
     Using get all games from API and only returning 25 at a time.
     '''
     cur, conn = setUpDatabase('balldontlie.db')
-    cur.execute('CREATE TABLE IN NOT EXISTS Warrior (game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score)')
+    cur.execute('CREATE TABLE IF NOT EXISTS Warrior (game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score INTEGER)')
     base_url = 'https://balldontlie.io/api/v1/games?seasons[]=2018&team_ids[]=10&seasons[]=2017&postseason=false&page={}'
 
     # Each Request returns 25 games
@@ -50,16 +50,16 @@ def createWarriorsTable():
         # team score into the database
         for game in dict_list:
             #replace this with code
-            game_id = i['id']
-            home_score = i['home_team_score']
-            visitor_score = i['visitor_team_score']
-            cur.execute('INSERT INTO Warrior (game_id, home_team_score, visitor_team_score) VALUES (?, ?, ?)', (game_id, home_score, visitor_score))
+            game_id = game['id']
+            home_score = game['home_team_score']
+            visitor_score = game['visitor_team_score']
+            cur.execute('INSERT OR IGNORE INTO Warrior (game_id, home_team_score, away_team_score) VALUES (?, ?, ?)', (game_id, home_score, visitor_score))
             conn.commit()
 
-        conn.commit()     #commit the changes
         print('Taking a short break...')
         time.sleep(15)
 
+    cur.close()
 
 def createSixersTable():
     '''
@@ -72,7 +72,7 @@ def createSixersTable():
     # make sure to create new table for them
 
     cur, conn = setUpDatabase('balldontlie.db')
-    cur.execute('CREATE TABLE IN NOT EXISTS Sixers (game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score)')
+    cur.execute('CREATE TABLE IF NOT EXISTS Sixers (game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score INTEGER)')
     base_url = 'https://balldontlie.io/api/v1/games?seasons[]=2018&team_ids[]=23&seasons[]=2017&postseason=false&page={}'
 
     # Each Request returns 25 games
@@ -89,12 +89,16 @@ def createSixersTable():
         # team score into the database
         for game in dict_list:
             #replace this with code
-            game_id = i['id']
-            home_score = i['home_team_score']
-            visitor_score = i['visitor_team_score']
-            cur.execute('INSERT INTO Sixers (game_id, home_team_score, visitor_team_score) VALUES (?, ?, ?)', (game_id, home_score, visitor_score))
+            game_id = game['id']
+            home_score = game['home_team_score']
+            visitor_score = game['visitor_team_score']
+            cur.execute('INSERT OR IGNORE INTO Sixers (game_id, home_team_score, away_team_score) VALUES (?, ?, ?)', (game_id, home_score, visitor_score))
             conn.commit()
 
+        print('Taking a short break...')
+        time.sleep(15)
+
+    cur.close()
 
 def createRocketsTable():
     '''
@@ -106,7 +110,7 @@ def createRocketsTable():
     # Do same thing as above but for 76ers (team_ids[]=10) in url now
     # make sure to create new table for them
     cur, conn = setUpDatabase('balldontlie.db')
-    cur.execute('CREATE TABLE IN NOT EXISTS Rockets (game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score)')
+    cur.execute('CREATE TABLE IF NOT EXISTS Rockets (game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score INTEGER)')
     base_url = 'https://balldontlie.io/api/v1/games?seasons[]=2018&team_ids[]=10&seasons[]=2017&postseason=false&page={}'
 
     # Each Request returns 25 games
@@ -123,14 +127,19 @@ def createRocketsTable():
         # team score into the database
         for game in dict_list:
             #replace this with code
-            game_id = i['id']
-            home_score = i['home_team_score']
-            visitor_score = i['visitor_team_score']
-            cur.execute('INSERT INTO Warrior (game_id, home_team_score, visitor_team_score) VALUES (?, ?, ?)', (game_id, home_score, visitor_score))
+            game_id = game['id']
+            home_score = game['home_team_score']
+            visitor_score = game['visitor_team_score']
+            cur.execute('INSERT OR IGNORE INTO Rockets (game_id, home_team_score, away_team_score) VALUES (?, ?, ?)', (game_id, home_score, visitor_score))
             conn.commit()
 
+        print('Taking a short break...')
+        time.sleep(15)
 
-# uncomment below lines when done
-# createWarriorsTable()
-# createSixersTable()
-# createRocketsTable()
+    cur.close()
+
+
+if __name__ == '__main__':
+    # createWarriorsTable()
+    # createSixersTable()
+    createRocketsTable()
