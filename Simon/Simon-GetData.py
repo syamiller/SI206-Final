@@ -37,44 +37,49 @@ def create_id_list():
 
 def create_pitchers_list():
     cur, conn = setUpDatabase('baseball.db')
-    cur.execute('DROP TABLE IDs')
-    cur.execute('CREATE TABLE IF NOT EXISTS IDs (id INTEGER PRIMARY KEY, player_id INTEGER UNIQUE)')
+    cur.execute('CREATE TABLE IF NOT EXISTS IDs (id INTEGER PRIMARY KEY, player_id INTEGER UNIQUE, hand TEXT)')
     team_list = create_id_list()
     count = 0
     url = "https://mlb-data.p.rapidapi.com/json/named.roster_team_alltime.bam"
 
     for team in team_list:
-        count += 1
         querystring = {"end_season":"'2018'","team_id": int(team),"start_season":"'2018'","all_star_sw":"'N'","sort_order":"name_asc"}
         response = requests.get(url, headers=headers, params=querystring)
         data = response.text
         dict_list = json.loads(data)['roster_team_alltime']['queryResults']['row']
         for player in dict_list:
+            player_id = player['player_id']
             if player['primary_position'] == 'P':
-                cur.execute('INSERT OR IGNORE INTO IDs (player_id) VALUES (?)', (player['player_id'], ))
+                in_data = cur.execute('SELECT player_id FROM IDs WHERE player_id = ?', (player_id,)).fetchone()
+                if in_data is not None:
+                    continue
+
+                cur.execute('INSERT OR IGNORE INTO IDs (player_id, hand) VALUES (?, ?)', (player_id, player['throws']))
                 conn.commit()
-        if count == 15:
-            print('Halftime! Taking a short break...')
-            time.sleep(30)
+                count += 1
+
+            if count == 25:
+                print(f'{count} Pitchers Added!')
+                print('Wait 15 seconds before running again!\n')
+                return
+
     cur.close()
 
 def create_table():
     cur, conn = setUpDatabase('baseball.db')
     cur.execute('CREATE TABLE IF NOT EXISTS Pitchers (id INTEGER PRIMARY KEY, player_id INTEGER UNIQUE, era INTEGER, whip INTEGER)')
-    start = cur.execute('SELECT MAX(id) FROM Pitchers').fetchone()[0]
+    id_list = cur.execute('SELECT id, player_id FROM Pitchers ORDER BY id ASC').fetchall()
+    start_id = id_list[-1][-1]
+    start = cur.execute('SELECT id FROM IDs WHERE player_id = ?', (start_id,)).fetchone()[0]
     max_id = cur.execute('SELECT MAX(id) FROM IDs').fetchone()[0]
 
     if start is None:
         start = 1
-    elif start >= max_id:
-        print('Already Done!')
-        return
     else:
-        diff = start % 25
-        start = start + diff
+        start += 1
 
     if start + 25 >= max_id:
-        end = max_id
+        end = max_id + 1
         print('Last time!')
     else:
         end = start + 25
