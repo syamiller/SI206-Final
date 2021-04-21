@@ -79,7 +79,23 @@ def createPlayers():
     # Loop through this list of dictionaries and add players_id to table only if their country
     # is in the countries table and they have more than 10 appearances
     # NOTE: There may be mapping issues with the way some countries are spelled
+
+    # get list of countries from website
+    # using this countries list again because I wasn't sure how to see if the country was in the table, it might be 
+    # simpler/better to use the table 
+    url = 'https://bleacherreport.com/articles/1573794-power-ranking-the-25-best-soccernations-based-on-per-capita'
+    r = requests.get(url)
+    soup = BeautifulSoup(r.text, 'html.parser')
+    table = soup.find('table', class_='blob')
+    trs = table.find_all('tr')
+    for index in range(len(dict_list)):
+        for player in dict_list[index]:
+            if player[1][2]["appearences"] > 10 and player[1][1]["country"] in trs:
+               name = player["player"]["name"]
+               cur.execute('INSERT OR IGNORE INTO Players (name) VALUES (?)', (name,))
+               conn.commit()
+
     
 
-# createCountriesTable()
+#createCountriesTable()
 createPlayers()
