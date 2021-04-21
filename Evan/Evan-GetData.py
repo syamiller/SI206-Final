@@ -62,38 +62,43 @@ def createPlayers():
     '''
     # Create Table
     cur, conn = setUpDatabase('Soccer')
-    cur.execute('CREATE TABLE IF NOT EXISTS Players (player_id INTEGER PRIMARY KEY, country_id INTEGER)')
+    cur.execute('drop table players')
+    cur.execute('CREATE TABLE IF NOT EXISTS Players (id INTEGER PRIMARY KEY, player_id INTEGER UNIQUE, country_id INTEGER)')
 
     
     # THIS IS AN EXAMPLE REQUEST YOU SHOULD USE
     # There are 33 total pages
     # Use this is a loop (described below)
-    count = 1
+    count = 0
     url = "https://api-football-v1.p.rapidapi.com/v3/players"
-    querystring = {"league":"39","season":"2019","page":str(count)}
-    r = requests.get(url, headers=headers, params=querystring)
-    data = r.text
-    dict_list = json.loads(data)['response']
-
+    for i in range(1, 34):
+        querystring = {"league":"39","season":"2019","page":str(i)}
+        r = requests.get(url, headers=headers, params=querystring)
+        data = r.text
+        dict_list = json.loads(data)['response']
+        for player in dict_list:
+            birth = player['player']['birth']['country']
+            appearences = player['statistics'][0]['games']['appearences']
+            if appearences is None: continue
+            player_id = player['player']['id']
+            in_data = cur.execute('SELECT id FROM Countries WHERE title = ?', (birth,)).fetchone()
+            if in_data is not None:
+                id_in_data = cur.execute('SELECT player_id FROM Players WHERE player_id = ?', (player_id,)).fetchone()
+                if id_in_data is None:
+                    country_id = cur.execute('SELECT id FROM Countries WHERE title = ?', (birth,)).fetchone()[0]
+                    if appearences >= 10:
+                        cur.execute('INSERT OR IGNORE INTO Players (player_id, country_id) VALUES (?, ?)', (player_id, country_id))
+                        conn.commit()
+                        count += 1
+                        if count == 25:
+                            print(f'Added {count} players!')
+                            return
     # an example of what dict_list looks like is in ex.json
     # Loop through this list of dictionaries and add players_id to table only if their country
     # is in the countries table and they have more than 10 appearances
     # NOTE: There may be mapping issues with the way some countries are spelled
 
-    # get list of countries from website
-    # using this countries list again because I wasn't sure how to see if the country was in the table, it might be 
-    # simpler/better to use the table 
-    url = 'https://bleacherreport.com/articles/1573794-power-ranking-the-25-best-soccernations-based-on-per-capita'
-    r = requests.get(url)
-    soup = BeautifulSoup(r.text, 'html.parser')
-    table = soup.find('table', class_='blob')
-    trs = table.find_all('tr')
-    for index in range(len(dict_list)):
-        for player in dict_list[index]:
-            if player[1][2]["appearences"] > 10 and player[1][1]["country"] in trs:
-               name = player["player"]["name"]
-               cur.execute('INSERT OR IGNORE INTO Players (name) VALUES (?)', (name,))
-               conn.commit()
+    
 
     
 
