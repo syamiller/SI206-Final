@@ -101,6 +101,5 @@ def createPlayers():
     
 
     
-
-#createCountriesTable()
-createPlayers()
+if __name__ == '__main__':
+    createPlayers()
