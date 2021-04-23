@@ -22,8 +22,7 @@ def setUpDatabase(db_name):
     Create the database and return the cursor and connection objects.
     Used in function to update databses
     '''
-    path = os.path.dirname(os.path.abspath(__file__))
-    conn = sqlite3.connect(path+'/'+db_name)
+    conn = sqlite3.connect(db_name)
     cur = conn.cursor()
     return cur, conn
 
@@ -36,7 +35,7 @@ def createCountriesTable():
     - title is the name of the country
     '''
     # create table
-    cur, conn = setUpDatabase('Soccer')
+    cur, conn = setUpDatabase('balldontlie.db')
     cur.execute('CREATE TABLE IF NOT EXISTS Countries (id INTEGER PRIMARY KEY, title TEXT)')
 
     # get list of countries from website
@@ -61,8 +60,7 @@ def createPlayers():
     - country_id is the id for the country that player was born in from the Countries table
     '''
     # Create Table
-    cur, conn = setUpDatabase('Soccer')
-    cur.execute('drop table players')
+    cur, conn = setUpDatabase('balldontlie.db')
     cur.execute('CREATE TABLE IF NOT EXISTS Players (id INTEGER PRIMARY KEY, player_id INTEGER UNIQUE, country_id INTEGER)')
 
     
@@ -102,4 +100,6 @@ def createPlayers():
 
     
 if __name__ == '__main__':
+    # createCountriesTable()
     createPlayers()
+    print('Wait 30 seconds before running again!')

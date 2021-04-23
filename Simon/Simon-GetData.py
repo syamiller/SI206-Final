@@ -14,8 +14,7 @@ def setUpDatabase(db_name):
     Create the database and return the cursor and connection objects.
     Used in function to update databses
     '''
-    path = os.path.dirname(os.path.abspath(__file__))
-    conn = sqlite3.connect(path+'/'+db_name)
+    conn = sqlite3.connect(db_name)
     cur = conn.cursor()
     return cur, conn
 
@@ -36,7 +35,7 @@ def create_id_list():
     return id_list
 
 def create_pitchers_list():
-    cur, conn = setUpDatabase('baseball.db')
+    cur, conn = setUpDatabase('balldontlie.db')
     cur.execute('CREATE TABLE IF NOT EXISTS IDs (id INTEGER PRIMARY KEY, player_id INTEGER UNIQUE, hand TEXT)')
     team_list = create_id_list()
     count = 0
@@ -66,21 +65,22 @@ def create_pitchers_list():
     cur.close()
 
 def create_table():
-    cur, conn = setUpDatabase('baseball.db')
+    cur, conn = setUpDatabase('balldontlie.db')
     cur.execute('CREATE TABLE IF NOT EXISTS Pitchers (id INTEGER PRIMARY KEY, player_id INTEGER UNIQUE, era INTEGER, whip INTEGER)')
+
+    # Figuring out where to start and end
     id_list = cur.execute('SELECT id, player_id FROM Pitchers ORDER BY id ASC').fetchall()
-    start_id = id_list[-1][-1]
-    start = cur.execute('SELECT id FROM IDs WHERE player_id = ?', (start_id,)).fetchone()[0]
+    if len(id_list) == 0:
+        start = 0
+    else:
+        start_id = id_list[-1][-1]
+        start = cur.execute('SELECT id FROM IDs WHERE player_id = ?', (start_id,)).fetchone()[0]
     max_id = cur.execute('SELECT MAX(id) FROM IDs').fetchone()[0]
 
-    if start is None:
-        start = 1
-    else:
-        start += 1
+    start += 1
 
     if start + 25 >= max_id:
         end = max_id + 1
-        print('Last time!')
     else:
         end = start + 25
 
@@ -90,16 +90,19 @@ def create_table():
         player_id = cur.execute('SELECT player_id FROM IDs WHERE id = ?', (i,)).fetchone()[0]
         
         in_data = cur.execute('SELECT player_id FROM Pitchers WHERE player_id = ?', (player_id,)).fetchone()
+        # check first to see if we already have data for that player
         if in_data is not None:
             print(f'Already have data for player {player_id}')
             continue
-
+        # format request
         querystring = {"season":"'2018'","player_id": player_id,"league_list_id":"'mlb'","game_type":"'R'"}
         response = requests.get(url, headers=headers, params=querystring)
 
+        # index through the data
         data = response.text
         stat_dict = json.loads(data)['sport_pitching_tm']['queryResults']
 
+        # cleaning data -- checking to see if data from request for player is actually present
         if stat_dict['totalSize'] == "0":
             print(f'Player {player_id} has no data :(')
             continue
@@ -128,4 +131,6 @@ def create_table():
 if __name__ == '__main__':
     # create_pitchers_list()
     # create_pitchers_list()
+    # print('Taking a quit break before cleaning!')
+    # time.sleep(15)
     create_table()
