@@ -1,9 +1,6 @@
-import matplotlib
 import sqlite3
 import os
 import json
-import matplotlib.pyplot as plt; plt.rcdefaults()
-import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -17,13 +14,13 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
-def doCalc():
+def doCalc(filename):
     '''
     Do the Calculations:
     - Get average total game score for each of the three teams
     '''
     cur, conn = setUpDatabase('balldontlie.db')
-
+    # full_path = os.path.join(os.path.dirname(__file__), filename)
     #WARRIORS
     cur.execute('SELECT * FROM Warrior')
     w_result = cur.fetchall()
@@ -75,38 +72,37 @@ def doCalc():
 
     #return (w_final, s_final, r_final)
 
-    data = {}
-    data['Warriors'] = w_final
-    data['Sixers'] = s_final
-    data['Rockets'] = r_final
-    with open('data.json', 'w') as outfile:
+    with open(filename, 'r') as jsonFile:
+        data = json.load(jsonFile)
+    data['Basketball'] = {}
+    data['Basketball']['Warriors'] = w_final
+    data['Basketball']['Sixers'] = s_final
+    data['Basketball']['Rockets'] = r_final
+    with open(filename, 'w') as outfile:
         json.dump(data, outfile)
     
-def showViz():
+def showViz(filename):
     '''
     Create the visual
     Bar Graph:
     - team name on x axis
     - average total game score on y axis
     '''
-    o = open('data.json')
-    r = o.read()
-    print(r)
+    with open(filename, 'r') as jsonFile:
+        data = json.load(jsonFile)
 
-    warriors = vals[0]
-    sixers = vals[1]
-    rockets = vals[2]
+    data = data['Basketball']
 
-    objects = ('Warrriors', 'Sixers', 'Rockets')
-    y_pos = np.arange(len(objects))
-    values = [warriors, sixers, rockets]
+    teams = [i for i in data.keys()]
+    values = [i for i in data.values()]
 
-    plt.bar(y_pos, values, align='center', alpha=0.5)
-    plt.xticks(y_pos, objects)
+    plt.bar(teams, values, align='center', alpha=0.5)
     plt.ylabel('Average Total Game Score')
     plt.xlabel('Team Name')
     plt.title('Average Scores')
 
     plt.show()
 
-showViz()
+if __name__ == '__main__':
+    # doCalc('data.json')
+    showViz('data.json')
