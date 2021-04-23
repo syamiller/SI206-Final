@@ -1,7 +1,7 @@
 import matplotlib
 import sqlite3
 import os
-
+import json
 import matplotlib.pyplot as plt; plt.rcdefaults()
 import numpy as np
 import matplotlib.pyplot as plt
@@ -73,9 +73,15 @@ def doCalc():
     #print(r_final)
     #print('---------------------')
 
-    return (w_final, s_final, r_final)
-    
+    #return (w_final, s_final, r_final)
 
+    data = {}
+    data['Warriors'] = w_final
+    data['Sixers'] = s_final
+    data['Rockets'] = r_final
+    with open('data.json', 'w') as outfile:
+        json.dump(data, outfile)
+    
 def showViz():
     '''
     Create the visual
@@ -83,7 +89,9 @@ def showViz():
     - team name on x axis
     - average total game score on y axis
     '''
-    vals = doCalc()
+    o = open('data.json')
+    r = o.read()
+    print(r)
 
     warriors = vals[0]
     sixers = vals[1]
