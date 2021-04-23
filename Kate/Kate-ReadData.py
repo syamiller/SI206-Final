@@ -16,9 +16,59 @@ def setUpDatabase(db_name):
 def doCalc():
     '''
     Do the Calculations:
-    - Get avergae total game score for each of the three teams
+    - Get average total game score for each of the three teams
     '''
-    pass
+    cur, conn = setUpDatabase('balldontlie.db')
+
+    #WARRIORS
+    cur.execute('SELECT * FROM Warrior')
+    w_result = cur.fetchall()
+    w_avg = 0
+    w_count = 0
+    for val in w_result:
+        add = (val[2] + val[3]) / 2
+        #print(add)
+        w_avg += add
+        w_count += 1
+    w_final = w_avg/w_count
+    
+    print("THIS IS THE WARRIORS' AVG")
+    print(w_final)
+    print('---------------------')
+
+
+    #SIXERS
+    cur.execute('SELECT * FROM Sixers')
+    s_result = cur.fetchall()
+    s_avg = 0
+    s_count = 0
+    for val in s_result:
+        add = (val[2] + val[3]) / 2
+        #print(add)
+        s_avg += add
+        s_count += 1
+    s_final = s_avg/s_count
+    
+    print("THIS IS THE SIXERS' AVG")
+    print(s_final)
+    print('---------------------')
+
+    #ROCKETS
+    cur.execute('SELECT * FROM Rockets')
+    r_result = cur.fetchall()
+    r_avg = 0
+    r_count = 0
+    for val in r_result:
+        add = (val[2] + val[3]) / 2
+        #print(add)
+        r_avg += add
+        r_count += 1
+    r_final = r_avg/r_count
+    
+    print("THIS IS THE ROCKETS' AVG")
+    print(r_final)
+    print('---------------------')
+    
 
 def showViz():
     '''
@@ -28,3 +78,5 @@ def showViz():
     - average total game score on y axis
     '''
     pass
+
+doCalc()
