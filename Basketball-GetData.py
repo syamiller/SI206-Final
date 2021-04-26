@@ -18,11 +18,10 @@ def setUpDatabase(db_name):
     Create the database and return the cursor and connection objects.
     Used in function to update databses
     '''
-    conn = sqlite3.connect(db_name)
+    path = os.path.dirname(os.path.abspath(__file__))
+    conn = sqlite3.connect(path+'/'+db_name)
     cur = conn.cursor()
     return cur, conn
-
-    # DONE
 
 
 def createWarriorsTable():
@@ -30,6 +29,7 @@ def createWarriorsTable():
     Get data for all regular season games from 2017 and 2018 seasons
     for Golden State Warriors. Collecting game_id, home_team_score, away_team_score.
     Using get all games from API and only returning 25 at a time.
+    User inputs page number and then checks to see if that page was already stored
     '''
     cur, conn = setUpDatabase('balldontlie.db')
     cur.execute('CREATE TABLE IF NOT EXISTS Warrior (id INTEGER PRIMARY KEY, game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score INTEGER)')
@@ -61,7 +61,6 @@ def createWarriorsTable():
         return
     
     for game in dict_list:
-            #replace this with code
             game_id = game['id']
             home_score = game['home_team_score']
             visitor_score = game['visitor_team_score']
@@ -75,11 +74,8 @@ def createSixersTable():
     Get data for all regular season games from 2017 and 2018 seasons
     for the 76ers. Collecting game_id, home_team_score, away_team_score.
     Using get all games from API and only returning 25 at a time.
+    User inputs page number and then checks to see if that page was already stored
     '''
-
-    # Do same thing as above but for 76ers (team_ids[]=23) in url now
-    # make sure to create new table for them
-
     cur, conn = setUpDatabase('balldontlie.db')
     cur.execute('CREATE TABLE IF NOT EXISTS Sixers (id INTEGER PRIMARY KEY, game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score INTEGER)')
     base_url = 'https://balldontlie.io/api/v1/games?seasons[]=2018&team_ids[]=23&seasons[]=2017&postseason=false&page={}'
@@ -123,10 +119,8 @@ def createRocketsTable():
     Get data for all regular season games from 2017 and 2018 seasons
     for the Rockets. Collecting game_id, home_team_score, away_team_score.
     Using get all games from API and only returning 25 at a time.
+    User inputs page number and then checks to see if that page was already stored
     '''
-
-    # Do same thing as above but for Rockets (team_ids[]=11) in url now
-    # make sure to create new table for them
     cur, conn = setUpDatabase('balldontlie.db')
     cur.execute('CREATE TABLE IF NOT EXISTS Rockets (id INTEGER PRIMARY KEY, game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score INTEGER)')
     base_url = 'https://balldontlie.io/api/v1/games?seasons[]=2018&team_ids[]=11&seasons[]=2017&postseason=false&page={}'
@@ -156,7 +150,6 @@ def createRocketsTable():
         return
     
     for game in dict_list:
-            #replace this with code
             game_id = game['id']
             home_score = game['home_team_score']
             visitor_score = game['visitor_team_score']
@@ -167,6 +160,6 @@ def createRocketsTable():
 
 
 if __name__ == '__main__':
-    # createWarriorsTable()
-    # createSixersTable()
+    createWarriorsTable()
+    createSixersTable()
     createRocketsTable()

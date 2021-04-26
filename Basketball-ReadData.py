@@ -16,12 +16,17 @@ def setUpDatabase(db_name):
 
 def doCalc(filename):
     '''
-    Do the Calculations:
-    - Get average total game score for each of the three teams
+    Get average total game score for each of the three teams
+    Input: json file that holds data
+    Data then added and outputted to the as a new key  
     '''
     cur, conn = setUpDatabase('balldontlie.db')
     # full_path = os.path.join(os.path.dirname(__file__), filename)
     #WARRIORS
+    with open(filename, 'r') as jsonFile:
+        data = json.load(jsonFile)
+    data['Basketball'] = {}
+
     cur.execute('SELECT * FROM Warrior')
     w_result = cur.fetchall()
     w_avg = 0
@@ -32,10 +37,6 @@ def doCalc(filename):
         w_avg += add
         w_count += 1
     w_final = w_avg/w_count
-    
-    #print("THIS IS THE WARRIORS' AVG")
-    #print(w_final)
-    #print('---------------------')
 
 
     #SIXERS
@@ -45,14 +46,9 @@ def doCalc(filename):
     s_count = 0
     for val in s_result:
         add = (val[2] + val[3])
-        #print(add)
         s_avg += add
         s_count += 1
     s_final = s_avg/s_count
-    
-    #print("THIS IS THE SIXERS' AVG")
-    #print(s_final)
-    #print('---------------------')
 
     #ROCKETS
     cur.execute('SELECT * FROM Rockets')
@@ -61,32 +57,24 @@ def doCalc(filename):
     r_count = 0
     for val in r_result:
         add = (val[2] + val[3])
-        #print(add)
         r_avg += add
         r_count += 1
     r_final = r_avg/r_count
-    
-    #print("THIS IS THE ROCKETS' AVG")
-    #print(r_final)
-    #print('---------------------')
 
-    #return (w_final, s_final, r_final)
-
-    with open(filename, 'r') as jsonFile:
-        data = json.load(jsonFile)
-    data['Basketball'] = {}
     data['Basketball']['Warriors'] = w_final
     data['Basketball']['Sixers'] = s_final
     data['Basketball']['Rockets'] = r_final
+
     with open(filename, 'w') as outfile:
         json.dump(data, outfile)
     
 def showViz(filename):
     '''
-    Create the visual
-    Bar Graph:
-    - team name on x axis
-    - average total game score on y axis
+    Create a bar chart that shows average total game score for three teams
+    team name on x axis
+    average total game score on y axis
+    Input is json file that holds the data needed for the bar charts
+    Output is the bar chart
     '''
     with open(filename, 'r') as jsonFile:
         data = json.load(jsonFile)

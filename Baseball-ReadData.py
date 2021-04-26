@@ -8,11 +8,18 @@ def setUpDatabase(db_name):
     Create the database and return the cursor and connection objects.
     Used in function to update databses
     '''
-    conn = sqlite3.connect(db_name)
+    path = os.path.dirname(os.path.abspath(__file__))
+    conn = sqlite3.connect(path+'/'+db_name)
     cur = conn.cursor()
     return cur, conn
 
 def doCalc(filename):
+    ''' 
+    Calculates average ERA and WHIP based on hand
+    JOIN used in SELECT statement to get hand of pitcher
+    Input: json file that holds data
+    Data then added and outputted to the as a new key 
+    '''
     with open(filename, 'r') as jsonFile:
         data = json.load(jsonFile)
     
@@ -25,7 +32,7 @@ def doCalc(filename):
     r_era = []
     r_whip = []
     for pair in db_data:
-        if pair[2] == 'R':
+        if pair[2] == 1:
             r_era.append(pair[0])
             r_whip.append(pair[1])
         else:
@@ -40,6 +47,13 @@ def doCalc(filename):
     
     
 def showViz(filename):
+    ''' 
+    Two bar charts created
+    One shows average ERA for Right vs. Left Hand
+    Other shows average WHIP for Right vs. Left Hand
+    Input is json file that holds the data needed for the bar charts
+    Output is the two bar charts
+    '''
     with open(filename, 'r') as jsonFile:
         data = json.load(jsonFile)
     
@@ -61,5 +75,5 @@ def showViz(filename):
     plt.show()
 
 if __name__ == '__main__':
-    # doCalc('data.json')
+    doCalc('data.json')
     showViz('data.json')

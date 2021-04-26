@@ -4,6 +4,12 @@ import os
 import json
 import time
 
+''' 
+Using MLB Data API
+https://appac.github.io/mlb-data-api-docs/#top
+Needs an API Key
+'''
+
 headers = {
         'x-rapidapi-key': "2ef16e9246msha6237e4233efa3bp10476fjsndfae9ee072e8",
         'x-rapidapi-host': "mlb-data.p.rapidapi.com"
@@ -14,11 +20,16 @@ def setUpDatabase(db_name):
     Create the database and return the cursor and connection objects.
     Used in function to update databses
     '''
-    conn = sqlite3.connect(db_name)
+    path = os.path.dirname(os.path.abspath(__file__))
+    conn = sqlite3.connect(path+'/'+db_name)
     cur = conn.cursor()
     return cur, conn
 
 def create_id_list():
+    '''
+    Returns a list of all of the team ids from the API --> 30 teams
+    Used in create_pitchers_list()
+    '''
     url = "https://mlb-data.p.rapidapi.com/json/named.team_all_season.bam"
 
     querystring = {"season":"'2018'","all_star_sw":"'N'","sort_order":"league_full_asc"}
@@ -34,9 +45,15 @@ def create_id_list():
             id_list.append(team['team_id'])
     return id_list
 
-def create_pitchers_list():
+def create_id_table():
+    '''
+    Creates a table of player IDs
+    Players only added to table if their position is pitcher
+    Pitcher hand (0 or 1) is also a column in the table --> 0 is L, 1 is R
+    25 new players added on each run by using a count
+    '''
     cur, conn = setUpDatabase('balldontlie.db')
-    cur.execute('CREATE TABLE IF NOT EXISTS IDs (id INTEGER PRIMARY KEY, player_id INTEGER UNIQUE, hand TEXT)')
+    cur.execute('CREATE TABLE IF NOT EXISTS IDs (id INTEGER PRIMARY KEY, player_id INTEGER UNIQUE, hand INTEGER)')
     team_list = create_id_list()
     count = 0
     url = "https://mlb-data.p.rapidapi.com/json/named.roster_team_alltime.bam"
@@ -52,19 +69,27 @@ def create_pitchers_list():
                 in_data = cur.execute('SELECT player_id FROM IDs WHERE player_id = ?', (player_id,)).fetchone()
                 if in_data is not None:
                     continue
-
-                cur.execute('INSERT OR IGNORE INTO IDs (player_id, hand) VALUES (?, ?)', (player_id, player['throws']))
+                hand = player['throws']
+                if hand == 'L':
+                    hand = 0
+                else:
+                    hand = 1
+                cur.execute('INSERT OR IGNORE INTO IDs (player_id, hand) VALUES (?, ?)', (player_id, hand))
                 conn.commit()
                 count += 1
 
             if count == 25:
                 print(f'{count} Pitchers Added!')
-                print('Wait 15 seconds before running again!\n')
                 return
 
     cur.close()
 
 def create_table():
+    '''
+    Creates a table of Pitchers with there ERA and WHIP
+    Pitchers only added to database if stats are available (cleaning)
+    Max of 25 added at a time but could be less by using 'max(id)'
+    '''
     cur, conn = setUpDatabase('balldontlie.db')
     cur.execute('CREATE TABLE IF NOT EXISTS Pitchers (id INTEGER PRIMARY KEY, player_id INTEGER UNIQUE, era INTEGER, whip INTEGER)')
 
@@ -127,10 +152,18 @@ def create_table():
     cur.close()
     print(f'Added {count} pitchers!')
 
+def main():
+    '''
+    Main driver of file
+    Adds 25 pitcher to IDs table
+    Then takes 30 second break before cleaning
+    Then cleans and adds the pitchers to Pitchers Table
+    '''
+    create_id_table()
+    print('Taking a quick break before cleaning!')
+    time.sleep(30)
+    create_table()
+
 
 if __name__ == '__main__':
-    # create_pitchers_list()
-    # create_pitchers_list()
-    # print('Taking a quit break before cleaning!')
-    # time.sleep(15)
-    create_table()
+    main()
