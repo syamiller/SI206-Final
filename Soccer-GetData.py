@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 '''
 API-FOOTBALL
 Documentation here --> https://www.api-football.com/documentation-v3#section/Introduction
-This need an API Key --> see below
+This needs an API Key --> see below
 Keep in mind only allowed 100 requests per day (30 per minute)
 '''
 
@@ -36,14 +36,10 @@ def createPlayers():
     - posiiton is a number that correlates to the players position
     - - 0(attacker), 1(midfielder), 2(defender), 3(goalkeeper)
     '''
-    # Create Table
+
     cur, conn = setUpDatabase('balldontlie.db')
     cur.execute('CREATE TABLE IF NOT EXISTS Players (player_id INTEGER UNIQUE, height INTEGER , position INTEGER)')
 
-    
-    # THIS IS AN EXAMPLE REQUEST YOU SHOULD USE
-    # There are 33 total pages
-    # Use this is a loop (described below)
     count = 0
     url = "https://api-football-v1.p.rapidapi.com/v3/players"
     for i in range(1, 34):
@@ -81,4 +77,4 @@ def createPlayers():
     
 if __name__ == '__main__':
     createPlayers()
-    # print('Wait 30 seconds before running again!')
+    print('Wait 30 seconds before running again!')
