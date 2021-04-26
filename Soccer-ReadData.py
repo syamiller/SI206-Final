@@ -53,10 +53,10 @@ def doCalc(filename):
             #Goalkeeper
             goalie += val[1]
             goalie_count += 1
-    avg_attacker = attacker/attacker_count
-    avg_mid = mid/mid_count
-    avg_defender = defender/defender_count
-    avg_goalie = goalie/goalie_count
+    avg_attacker = float(str(attacker/attacker_count)[:6])
+    avg_mid = float(str(mid/mid_count)[:6])
+    avg_defender = float(str(defender/defender_count)[:6])
+    avg_goalie = float(str(goalie/goalie_count)[:6])
     print(avg_attacker, avg_defender, avg_goalie, avg_mid)
     
     avgs_d = {}
