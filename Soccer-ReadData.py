@@ -81,12 +81,12 @@ def showViz(filename):
     positions = data['Soccer'].keys()
 
     plt.bar(positions, heights, align='center', alpha=0.5)
-    plt.ylabel('Average Heights')
+    plt.ylabel('Average Heights (cm)')
     plt.xlabel('Positions')
     plt.title('Average Heights By Position')
 
     plt.show()
-
+ 
 if __name__ == '__main__':
     #doCalc('data.json')
     showViz('data.json')
