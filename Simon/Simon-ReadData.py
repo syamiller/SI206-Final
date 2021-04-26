@@ -39,5 +39,27 @@ def doCalc(filename):
         json.dump(data, f)
     
     
+def showViz(filename):
+    with open(filename, 'r') as jsonFile:
+        data = json.load(jsonFile)
+    
+    fig, (ax1, ax2) = plt.subplots(1, 2)
 
-doCalc('data.json')
+    data = data['Baseball']
+    x = data['ERA'].keys()
+    y = data['ERA'].values()
+
+    ax1.bar(x, y, align='center', alpha=0.5)
+    ax1.set(xlabel='Average ERA', ylabel='Hand', title='Average ERA for Right vs. Left Handed Pitchers')
+
+    x = data['WHIP'].keys()
+    y = data['WHIP'].values()
+
+    ax2.bar(x, y, align='center', alpha=0.5)
+    ax2.set(xlabel='Average WHIP', ylabel='Hand', title='Average WHIP for Right vs. Left Handed Pitchers')
+
+    plt.show()
+
+if __name__ == '__main__':
+    # doCalc('data.json')
+    showViz('data.json')

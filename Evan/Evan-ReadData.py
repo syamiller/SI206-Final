@@ -66,5 +66,5 @@ def showViz(filename):
     plt.show()
 
 if __name__ == '__main__':
-    doCalc('data.json')
+    # doCalc('data.json')
     showViz('data.json')
