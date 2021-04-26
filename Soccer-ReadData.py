@@ -24,26 +24,52 @@ def doCalc(filename):
     
 
     cur, conn = setUpDatabase('balldontlie.db')
-    id_list = cur.execute('SELECT country_id FROM Players').fetchall()
+    cur.execute('SELECT * FROM Players')
 
-    counts_dict = {}
+    player_heights = cur.fetchall()
+    #print(player_heights)
+    defender = 0
+    defender_count = 0
+    attacker = 0
+    attacker_count = 0
+    mid = 0
+    mid_count = 0
+    goalie = 0
+    goalie_count = 0
+    for val in player_heights:
+        if val[2] == 0:
+            #attacker
+            attacker += val[1]
+            attacker_count += 1
+        elif val[2] == 1:
+            #Midfielder
+            mid += val[1]
+            mid_count += 1
+        elif val[2] == 2:
+            #Defender
+            defender += val[1]
+            defender_count += 1
+        else:
+            #Goalkeeper
+            goalie += val[1]
+            goalie_count += 1
+    avg_attacker = attacker/attacker_count
+    avg_mid = mid/mid_count
+    avg_defender = defender/defender_count
+    avg_goalie = goalie/goalie_count
+    print(avg_attacker, avg_defender, avg_goalie, avg_mid)
+    
+    avgs_d = {}
+    avgs_d["Attacker"] = avg_attacker
+    avgs_d["Midfielder"] = avg_mid
+    avgs_d["Defender"] = avg_defender
+    avgs_d["Goalkeeper"] = avg_goalie
+    print(avgs_d)
 
-    for tup in id_list:
-        counts_dict[tup[0]] = counts_dict.get(tup[0], 0) + 1
 
-    sorted_countries = sorted(counts_dict.items(), key=lambda x: x[1], reverse = True)
 
-    sorted_counts_dict = {}
-    for tup in sorted_countries[:7]:
-        sorted_counts_dict[tup[0]] = tup[1]  
-
-    total = sum(sorted_counts_dict.values())
-    title_dict = {}
-    for key in sorted_counts_dict.keys():
-        country = cur.execute('SELECT Title FROM Countries WHERE id = ?', (key,)).fetchone()[0]
-        title_dict[country] = (sorted_counts_dict.get(key) / total) * 100
         
-    data['Soccer'] = title_dict
+    data['Soccer'] = avgs_d
 
     with open(filename, 'w') as f:
        json.dump(data, f)    
@@ -67,5 +93,5 @@ def showViz(filename):
     plt.show()
 
 if __name__ == '__main__':
-    # doCalc('data.json')
-    showViz('data.json')
+    doCalc('data.json')
+    #showViz('data.json')
