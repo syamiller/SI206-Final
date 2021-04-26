@@ -28,8 +28,21 @@ def doCalc(filename):
 
     for tup in id_list:
         counts_dict[tup[2]] = counts_dict.get(tup[2], 0) + 1
+    print(counts_dict)
+    sorted_countries = sorted(counts_dict.values(), reverse = True)
+    print(sorted_countries)
+    sorted_counts_dict = {}
+    for j in sorted_countries:
+        for i in counts_dict:
+            if counts_dict[i] == j:
+                sorted_counts_dict[i] = j
+        #count = 0
+        #sorted_counts_dict[i] = sorted_countries[count]
+        #count+= 1
+    print(sorted_counts_dict)
+    
 
-    data['Soccer'] = {} # sorted dictionary
+    data['Soccer'] = sorted_counts_dict 
 
     with open(filename, 'w') as f:
         json.dump(data, f)    
