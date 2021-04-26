@@ -1,6 +1,7 @@
-import matplotlib
+import matplotlib.pyplot as plt
 import sqlite3
 import os
+import json
 
 
 def setUpDatabase(db_name):
@@ -17,56 +18,53 @@ def doCalc(filename):
     Do the Calculations:
     - Get number of players from each country
     '''
-    #with open(filename, 'r') as jsonFile:
-     #   data = json.load(jsonFile)
+    with open(filename, 'r') as jsonFile:
+       data = json.load(jsonFile)
     
 
     cur, conn = setUpDatabase('balldontlie.db')
-    id_list = cur.execute('SELECT * FROM Players').fetchall()
+    id_list = cur.execute('SELECT country_id FROM Players').fetchall()
 
     counts_dict = {}
 
     for tup in id_list:
-        counts_dict[tup[2]] = counts_dict.get(tup[2], 0) + 1
-    #print(counts_dict)
-    sorted_countries = sorted(counts_dict.values(), reverse = True)
-    #print(sorted_countries)
+        counts_dict[tup[0]] = counts_dict.get(tup[0], 0) + 1
+
+    sorted_countries = sorted(counts_dict.items(), key=lambda x: x[1], reverse = True)
+
     sorted_counts_dict = {}
-    total = 0
-    for i in sorted_countries:
-        total += i
-    percents = []
-    for i in sorted_countries: 
-        percents.append(i/total*100)
-    percents[0]=percents[0] - .000000000000004
-    print(percents)
-    count = -1
-    for j in sorted_countries:
-        count+= 1
-        for i in counts_dict:
-            if counts_dict[i] == j:
-                sorted_counts_dict[i] = percents[count]
+    for tup in sorted_countries[:7]:
+        sorted_counts_dict[tup[0]] = tup[1]  
+
+    total = sum(sorted_counts_dict.values())
+    title_dict = {}
+    for key in sorted_counts_dict.keys():
+        country = cur.execute('SELECT Title FROM Countries WHERE id = ?', (key,)).fetchone()[0]
+        title_dict[country] = (sorted_counts_dict.get(key) / total) * 100
         
-    print(sorted_counts_dict)
-    
-    #data['Soccer'] = sorted_counts_dict 
+    data['Soccer'] = title_dict
 
-    #with open(filename, 'w') as f:
-    #    json.dump(data, f)    
+    with open(filename, 'w') as f:
+       json.dump(data, f)    
     
 
-def showViz():
+def showViz(filename):
     '''
     Create the visual
-    Bar Graph:
-    - country name on x axis
-    - number of players on y axis
+    Pie:
+    - 
     '''
     with open(filename, 'r') as jsonFile:
         data = json.load(jsonFile)
+    
+    sizes = data['Soccer'].values()
+    labels = data['Soccer'].keys()
 
-    data = data["Soccer"]
+    fig1, ax1 = plt.subplots()
 
+    ax1.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90)
+    plt.show()
 
 if __name__ == '__main__':
     doCalc('data.json')
+    showViz('data.json')
