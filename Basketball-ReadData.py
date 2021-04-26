@@ -21,9 +21,9 @@ def doCalc(filename):
     Data then added and outputted to the as a new key  
     '''
     cur, conn = setUpDatabase('balldontlie.db')
-    # full_path = os.path.join(os.path.dirname(__file__), filename)
+    full_path = os.path.join(os.path.dirname(__file__), filename)
     #WARRIORS
-    with open(filename, 'r') as jsonFile:
+    with open(full_path, 'r') as jsonFile:
         data = json.load(jsonFile)
     data['Basketball'] = {}
 
@@ -65,7 +65,7 @@ def doCalc(filename):
     data['Basketball']['Sixers'] = s_final
     data['Basketball']['Rockets'] = r_final
 
-    with open(filename, 'w') as outfile:
+    with open(full_path, 'w') as outfile:
         json.dump(data, outfile)
     
 def showViz(filename):
@@ -76,7 +76,8 @@ def showViz(filename):
     Input is json file that holds the data needed for the bar charts
     Output is the bar chart
     '''
-    with open(filename, 'r') as jsonFile:
+    full_path = os.path.join(os.path.dirname(__file__), filename)
+    with open(full_path, 'r') as jsonFile:
         data = json.load(jsonFile)
 
     data = data['Basketball']
@@ -88,9 +89,10 @@ def showViz(filename):
     plt.ylabel('Average Total Game Score')
     plt.xlabel('Team Name')
     plt.title('Average Scores')
+    plt.ylim(205, 230)
 
     plt.show()
 
 if __name__ == '__main__':
-    # doCalc('data.json')
+    doCalc('data.json')
     showViz('data.json')

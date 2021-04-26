@@ -19,62 +19,52 @@ def doCalc(filename):
     Do the Calculations:
     - Get number of players from each country
     '''
-    with open(filename, 'r') as jsonFile:
+    full_path = os.path.join(os.path.dirname(__file__), filename)
+    with open(full_path, 'r') as jsonFile:
        data = json.load(jsonFile)
     
 
     cur, conn = setUpDatabase('balldontlie.db')
-    cur.execute('SELECT * FROM Players')
+    cur.execute('SELECT height, position FROM Players')
 
     player_heights = cur.fetchall()
     #print(player_heights)
-    defender = 0
-    defender_count = 0
-    attacker = 0
-    attacker_count = 0
-    mid = 0
-    mid_count = 0
-    goalie = 0
-    goalie_count = 0
+    defender = []
+    attacker = []
+    goalie = []
+    mid = []
     for val in player_heights:
-        if val[2] == 0:
-            attacker += val[1]
-            attacker_count += 1
-        elif val[2] == 1:
-            mid += val[1]
-            mid_count += 1
-        elif val[2] == 2:
-            defender += val[1]
-            defender_count += 1
+        if val[1] == 0:
+            attacker.append(val[0])
+        elif val[1] == 1:
+            mid.append(val[0])
+        elif val[1] == 2:
+            defender.append(val[0])
         else:
-            goalie += val[1]
-            goalie_count += 1
-    avg_attacker = float(str(attacker/attacker_count)[:6])
-    avg_mid = float(str(mid/mid_count)[:6])
-    avg_defender = float(str(defender/defender_count)[:6])
-    avg_goalie = float(str(goalie/goalie_count)[:6])
-    #print(avg_attacker, avg_defender, avg_goalie, avg_mid)
+            goalie.append(val[0])
+
+    avg_attacker = sum(attacker) / len(attacker)
+    avg_mid = sum(mid) / len(mid)
+    avg_defender = sum(defender) / len(defender)
+    avg_goalie = sum(goalie) / len(goalie)
     
-    avgs_d = {}
-    avgs_d["Attacker"] = avg_attacker
-    avgs_d["Midfielder"] = avg_mid
-    avgs_d["Defender"] = avg_defender
-    avgs_d["Goalkeeper"] = avg_goalie
-    #print(avgs_d)
 
-    data['Soccer'] = avgs_d
+    data['Soccer'] = {'Attacker': avg_attacker, 'Midfielder': avg_mid, 'Defender': avg_defender, 'Goalkeeper': avg_goalie}
 
-    with open(filename, 'w') as f:
+    with open(full_path, 'w') as f:
        json.dump(data, f)    
     
 
 def showViz(filename):
     '''
     Create the visual
-    Pie:
+    Bar chart of heights by different position
+    Input is json file with the data
+    Output is the visual
     - 
     '''
-    with open(filename, 'r') as jsonFile:
+    full_path = os.path.join(os.path.dirname(__file__), filename)
+    with open(full_path, 'r') as jsonFile:
         data = json.load(jsonFile)
     
     heights = data['Soccer'].values()
@@ -84,9 +74,10 @@ def showViz(filename):
     plt.ylabel('Average Heights (cm)')
     plt.xlabel('Positions')
     plt.title('Average Heights By Position')
+    plt.ylim(145, 195)
 
     plt.show()
  
 if __name__ == '__main__':
-    #doCalc('data.json')
-    showViz('data.json')
+    doCalc('data.json')
+    # showViz('data.json')

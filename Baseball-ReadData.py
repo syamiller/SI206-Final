@@ -20,7 +20,8 @@ def doCalc(filename):
     Input: json file that holds data
     Data then added and outputted to the as a new key 
     '''
-    with open(filename, 'r') as jsonFile:
+    full_path = os.path.join(os.path.dirname(__file__), filename)
+    with open(full_path, 'r') as jsonFile:
         data = json.load(jsonFile)
     
     cur, conn = setUpDatabase('balldontlie.db')
@@ -42,7 +43,7 @@ def doCalc(filename):
     data['Baseball'] = {'ERA': {'Left': sum(l_era)/len(l_era), 'Right': sum(r_era)/len(r_era)}, 
     'WHIP': {'Left': sum(l_whip)/len(l_whip), 'Right': sum(r_whip)/len(r_whip)}}
 
-    with open(filename, 'w') as f:
+    with open(full_path, 'w') as f:
         json.dump(data, f)
     
     
@@ -54,7 +55,8 @@ def showViz(filename):
     Input is json file that holds the data needed for the bar charts
     Output is the two bar charts
     '''
-    with open(filename, 'r') as jsonFile:
+    full_path = os.path.join(os.path.dirname(__file__), filename)
+    with open(full_path, 'r') as jsonFile:
         data = json.load(jsonFile)
     
     fig, (ax1, ax2) = plt.subplots(1, 2)
@@ -64,13 +66,13 @@ def showViz(filename):
     y = data['ERA'].values()
 
     ax1.bar(x, y, align='center', alpha=0.5)
-    ax1.set(xlabel='Average ERA', ylabel='Hand', title='Average ERA for Right vs. Left Handed Pitchers')
+    ax1.set(xlabel='Average ERA', ylabel='Hand', title='Average ERA for Right vs. Left Handed Pitchers', ylim=(4.3, 5.5))
 
     x = data['WHIP'].keys()
     y = data['WHIP'].values()
 
     ax2.bar(x, y, align='center', alpha=0.5)
-    ax2.set(xlabel='Average WHIP', ylabel='Hand', title='Average WHIP for Right vs. Left Handed Pitchers')
+    ax2.set(xlabel='Average WHIP', ylabel='Hand', title='Average WHIP for Right vs. Left Handed Pitchers', ylim=(1.3, 1.6))
 
     plt.show()
 

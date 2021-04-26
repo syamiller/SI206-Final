@@ -32,7 +32,9 @@ def createPlayers():
     '''
     Create a players table with players from the EPL in the 2019 season
     - player_id is the id of that player given by the API
-    - country_id is the id for the country that player was born in from the Countries table
+    - height is the height of the player in cm
+    - posiiton is a number that correlates to the players position
+    - - 0(attacker), 1(midfielder), 2(defender), 3(goalkeeper)
     '''
     # Create Table
     cur, conn = setUpDatabase('balldontlie.db')
