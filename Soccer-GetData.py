@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 '''
 API-FOOTBALL
 Documentation here --> https://www.api-football.com/documentation-v3#section/Introduction
-This need an API Key --> see below
+This needs an API Key --> see below
 Keep in mind only allowed 100 requests per day (30 per minute)
 '''
 
@@ -77,4 +77,4 @@ def createPlayers():
     
 if __name__ == '__main__':
     createPlayers()
-    # print('Wait 30 seconds before running again!')
+    print('Wait 30 seconds before running again!')
