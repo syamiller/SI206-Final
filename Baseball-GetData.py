@@ -150,7 +150,9 @@ def create_table():
         conn.commit()
         count += 1
     cur.close()
+    total = cur.execute('SELECT MAX(id) FROM PLAYERS').fetchone()[0]
     print(f'Added {count} pitchers!')
+    print(f'{total} total players')
 
 def main():
     '''

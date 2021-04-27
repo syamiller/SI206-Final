@@ -36,14 +36,10 @@ def createPlayers():
     - posiiton is a number that correlates to the players position
     - - 0(attacker), 1(midfielder), 2(defender), 3(goalkeeper)
     '''
-    # Create Table
+
     cur, conn = setUpDatabase('balldontlie.db')
     cur.execute('CREATE TABLE IF NOT EXISTS Players (player_id INTEGER UNIQUE, height INTEGER , position INTEGER)')
 
-    
-    # THIS IS AN EXAMPLE REQUEST YOU SHOULD USE
-    # There are 33 total pages
-    # Use this is a loop (described below)
     count = 0
     url = "https://api-football-v1.p.rapidapi.com/v3/players"
     for i in range(1, 34):
