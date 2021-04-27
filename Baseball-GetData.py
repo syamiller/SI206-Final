@@ -78,7 +78,7 @@ def create_id_table():
                 conn.commit()
                 count += 1
 
-            if count == 25:
+            if count == 10:
                 print(f'{count} Pitchers Added!')
                 return
 
@@ -104,10 +104,10 @@ def create_table():
 
     start += 1
 
-    if start + 25 >= max_id:
+    if start + 10 >= max_id:
         end = max_id + 1
     else:
-        end = start + 25
+        end = start + 10
 
     url = "https://mlb-data.p.rapidapi.com/json/named.sport_pitching_tm.bam"
     count = 0
@@ -149,21 +149,21 @@ def create_table():
         cur.execute('INSERT OR IGNORE INTO Pitchers (player_id, era, whip) VALUES (? ,?, ?)', (player_id, era, whip))
         conn.commit()
         count += 1
+    total = cur.execute('SELECT MAX(id) FROM Pitchers').fetchone()[0]
     cur.close()
-    total = cur.execute('SELECT MAX(id) FROM PLAYERS').fetchone()[0]
     print(f'Added {count} pitchers!')
     print(f'{total} total players')
 
 def main():
     '''
     Main driver of file
-    Adds 25 pitcher to IDs table
-    Then takes 30 second break before cleaning
+    Adds 10 pitchers to IDs table
+    Then takes 15 second break before cleaning
     Then cleans and adds the pitchers to Pitchers Table
     '''
     create_id_table()
     print('Taking a quick break before cleaning!')
-    time.sleep(30)
+    time.sleep(15)
     create_table()
 
 

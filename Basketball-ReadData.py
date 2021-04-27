@@ -14,59 +14,41 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
-def doCalc(filename):
+def doCalc(filename, teams):
     '''
-    Get average total game score for each of the three teams
+    Get average total game score for the team 
     Input: json file that holds data
-    Data then added and outputted to the as a new key  
+    Input: List of team names that have data for.. if data does not exxist or spelled wrong, function will inform you
+    Data then added and outputted to the json file as a new key  
     '''
     cur, conn = setUpDatabase('balldontlie.db')
     full_path = os.path.join(os.path.dirname(__file__), filename)
-    #WARRIORS
+
     with open(full_path, 'r') as jsonFile:
         data = json.load(jsonFile)
-    data['Basketball'] = {}
 
-    cur.execute('SELECT * FROM Warrior')
-    w_result = cur.fetchall()
-    w_avg = 0
-    w_count = 0
-    for val in w_result:
-        add = (val[2] + val[3])
-        #print(add)
-        w_avg += add
-        w_count += 1
-    w_final = w_avg/w_count
+    for team in teams:
+        try:
+            cur.execute(f'SELECT * FROM {team}')
+        except:
+            print(f'Table for {team} does not exist.. Check spelling')
+            return
+
+        result = cur.fetchall()
+        total = 0
+        count = 0
+        for val in result:
+            add = (val[2] + val[3])
+            total += add
+            count += 1
+        avg = total / count
 
 
-    #SIXERS
-    cur.execute('SELECT * FROM Sixers')
-    s_result = cur.fetchall()
-    s_avg = 0
-    s_count = 0
-    for val in s_result:
-        add = (val[2] + val[3])
-        s_avg += add
-        s_count += 1
-    s_final = s_avg/s_count
+        data['Basketball'][team] = avg
 
-    #ROCKETS
-    cur.execute('SELECT * FROM Rockets')
-    r_result = cur.fetchall()
-    r_avg = 0
-    r_count = 0
-    for val in r_result:
-        add = (val[2] + val[3])
-        r_avg += add
-        r_count += 1
-    r_final = r_avg/r_count
-
-    data['Basketball']['Warriors'] = w_final
-    data['Basketball']['Sixers'] = s_final
-    data['Basketball']['Rockets'] = r_final
-
-    with open(full_path, 'w') as outfile:
-        json.dump(data, outfile)
+        with open(full_path, 'w') as outfile:
+            json.dump(data, outfile)
+    showViz(filename)
     
 def showViz(filename):
     '''
@@ -82,17 +64,15 @@ def showViz(filename):
 
     data = data['Basketball']
 
-    teams = [i for i in data.keys()]
-    values = [i for i in data.values()]
+    teams = data.keys()
+    values = data.values()
 
     plt.bar(teams, values, align='center', alpha=0.5)
-    plt.ylabel('Average Total Game Score')
+    plt.ylabel(f'Average Total Game Score')
     plt.xlabel('Team Name')
-    plt.title('Average Scores')
-    plt.ylim(205, 230)
+    plt.title('Average Score')
 
     plt.show()
 
 if __name__ == '__main__':
-    doCalc('data.json')
-    showViz('data.json')
+    doCalc('data.json', ['Knicks', 'Lakers'])

@@ -24,28 +24,40 @@ def setUpDatabase(db_name):
     return cur, conn
 
 
-def createWarriorsTable():
-    '''
-    Get data for all regular season games from 2017 and 2018 seasons
-    for Golden State Warriors. Collecting game_id, home_team_score, away_team_score.
-    Using get all games from API and only returning 25 at a time.
-    User inputs page number and then checks to see if that page was already stored
+def createGamesTable():
+    ''' 
+    Creates a table of all of the games from the 2017 and 2018 seasons for a team
+    User Input is team name, must be spelled correctly or function will inform you that the team does not exist
+    User also inputs a page number 1-7
+    Output is the table
+    Max of 25 games added per time as we limit the amount of games per page to 25
     '''
     cur, conn = setUpDatabase('balldontlie.db')
-    cur.execute('CREATE TABLE IF NOT EXISTS Warrior (id INTEGER PRIMARY KEY, game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score INTEGER)')
-    base_url = 'https://balldontlie.io/api/v1/games?seasons[]=2018&team_ids[]=10&seasons[]=2017&postseason=false&page={}'
+    teams_url = 'https://balldontlie.io/api/v1/teams'
+    r = requests.get(teams_url)
+    data = r.text
+    dict_list = json.loads(data)['data']
+    
+    team = str(input('Enter a team name: '))
+    team_id = None
+    for org in dict_list:
+        if org['name'] == team:
+            team_id = org['id']
+            break
+    if team_id is None: print('Sorry, invalid team name :(')
 
-
-    max_id = cur.execute('SELECT MAX(id) FROM Warrior').fetchone()[0]
+    print(f'Creating or Updating a table for {team}')
+    cur.execute(f'CREATE TABLE IF NOT EXISTS {team} (id INTEGER PRIMARY KEY, game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score INTEGER)')
+    max_id = cur.execute(f'SELECT MAX(id) FROM {team}').fetchone()[0]
     if max_id is not None and max_id == 164:
         print('Database is full. All games retrieved!')
         return
-    
-    print('Updating Warriors Table')
-    page = str(input('Enter a page number 1-7: '))
+
+    page = str(input(f'Enter a page number 1-7: '))
+
+    base_url = 'https://balldontlie.io/api/v1/games?seasons[]=2018&team_ids[]={}&seasons[]=2017&postseason=false&page={}'
+    request_url = base_url.format(team_id, page)
     print(f'Retreieving games from page {page}')
-    
-    request_url = base_url.format(page)
     r = requests.get(request_url)
     data = r.text
     dict_list = json.loads(data)['data']
@@ -55,7 +67,7 @@ def createWarriorsTable():
         return
 
     first_id = dict_list[0]['id']
-    in_data = cur.execute('SELECT game_id FROM Warrior WHERE game_id = ?', (first_id,)).fetchone()
+    in_data = cur.execute(f'SELECT game_id FROM {team} WHERE game_id = ?', (first_id,)).fetchone()
     if in_data is not None:
         print(f'Already have data from page {page}! Run again and try a different page!')
         return
@@ -64,102 +76,10 @@ def createWarriorsTable():
             game_id = game['id']
             home_score = game['home_team_score']
             visitor_score = game['visitor_team_score']
-            cur.execute('INSERT OR IGNORE INTO Warrior (game_id, home_team_score, away_team_score) VALUES (?, ?, ?)', (game_id, home_score, visitor_score))
+            cur.execute(f'INSERT OR IGNORE INTO {team} (game_id, home_team_score, away_team_score) VALUES (?, ?, ?)', (game_id, home_score, visitor_score))
             conn.commit()
 
     cur.close()
-
-def createSixersTable():
-    '''
-    Get data for all regular season games from 2017 and 2018 seasons
-    for the 76ers. Collecting game_id, home_team_score, away_team_score.
-    Using get all games from API and only returning 25 at a time.
-    User inputs page number and then checks to see if that page was already stored
-    '''
-    cur, conn = setUpDatabase('balldontlie.db')
-    cur.execute('CREATE TABLE IF NOT EXISTS Sixers (id INTEGER PRIMARY KEY, game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score INTEGER)')
-    base_url = 'https://balldontlie.io/api/v1/games?seasons[]=2018&team_ids[]=23&seasons[]=2017&postseason=false&page={}'
-
-    max_id = cur.execute('SELECT MAX(id) FROM Sixers').fetchone()[0]
-    if max_id is not None and max_id == 164:
-        print('Database is full. All games retrieved!')
-        return
-    
-    print('Updating Sixers Table')
-    page = str(input('Enter a page number 1-7: '))
-    print(f'Retreieving games from page {page}')
-    
-    request_url = base_url.format(page)
-    r = requests.get(request_url)
-    data = r.text
-    dict_list = json.loads(data)['data']
-
-    if len(dict_list) == 0:
-        print('Oops! Invalid page number!')
-        return
-
-    first_id = dict_list[0]['id']
-    in_data = cur.execute('SELECT game_id FROM Sixers WHERE game_id = ?', (first_id,)).fetchone()
-    if in_data is not None:
-        print(f'Already have data from page {page}! Run again and try a different page!')
-        return
-    
-    for game in dict_list:
-            #replace this with code
-            game_id = game['id']
-            home_score = game['home_team_score']
-            visitor_score = game['visitor_team_score']
-            cur.execute('INSERT OR IGNORE INTO Sixers (game_id, home_team_score, away_team_score) VALUES (?, ?, ?)', (game_id, home_score, visitor_score))
-            conn.commit()
-
-    cur.close()
-
-def createRocketsTable():
-    '''
-    Get data for all regular season games from 2017 and 2018 seasons
-    for the Rockets. Collecting game_id, home_team_score, away_team_score.
-    Using get all games from API and only returning 25 at a time.
-    User inputs page number and then checks to see if that page was already stored
-    '''
-    cur, conn = setUpDatabase('balldontlie.db')
-    cur.execute('CREATE TABLE IF NOT EXISTS Rockets (id INTEGER PRIMARY KEY, game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score INTEGER)')
-    base_url = 'https://balldontlie.io/api/v1/games?seasons[]=2018&team_ids[]=11&seasons[]=2017&postseason=false&page={}'
-
-    max_id = cur.execute('SELECT MAX(id) FROM Rockets').fetchone()[0]
-    if max_id is not None and max_id == 164:
-        print('Database is full. All games retrieved!')
-        return
-    
-    print('Updating Rockets Table')
-    page = str(input('Enter a page number 1-7: '))
-    print(f'Retreieving games from page {page}')
-    
-    request_url = base_url.format(page)
-    r = requests.get(request_url)
-    data = r.text
-    dict_list = json.loads(data)['data']
-
-    if len(dict_list) == 0:
-        print('Oops! Invalid page number!')
-        return
-
-    first_id = dict_list[0]['id']
-    in_data = cur.execute('SELECT game_id FROM Rockets WHERE game_id = ?', (first_id,)).fetchone()
-    if in_data is not None:
-        print(f'Already have data from page {page}! Run again and try a different page!')
-        return
-    
-    for game in dict_list:
-            game_id = game['id']
-            home_score = game['home_team_score']
-            visitor_score = game['visitor_team_score']
-            cur.execute('INSERT OR IGNORE INTO Rockets (game_id, home_team_score, away_team_score) VALUES (?, ?, ?)', (game_id, home_score, visitor_score))
-            conn.commit()
-
-    cur.close()
-
 
 if __name__ == '__main__':
-    createWarriorsTable()
-    createSixersTable()
-    createRocketsTable()
+    createGamesTable()
