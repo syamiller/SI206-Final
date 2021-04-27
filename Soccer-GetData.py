@@ -38,7 +38,7 @@ def createPlayers():
     '''
 
     cur, conn = setUpDatabase('balldontlie.db')
-    cur.execute('CREATE TABLE IF NOT EXISTS Players (player_id INTEGER UNIQUE, height INTEGER , position INTEGER)')
+    cur.execute('CREATE TABLE IF NOT EXISTS Players (id INTEGER PRIMARY KEY, player_id INTEGER UNIQUE, height INTEGER , position INTEGER)')
 
     count = 0
     url = "https://api-football-v1.p.rapidapi.com/v3/players"
@@ -71,10 +71,13 @@ def createPlayers():
                 count += 1
                 if count == 25:
                     print(f'Added {count} players!')
+                    total = cur.execute('SELECT MAX(id) FROM Players').fetchone()[0]
+                    print(f'{total} total players!')
+                    print('Wait 30 seconds before running again!')
                     return
     
 
     
 if __name__ == '__main__':
     createPlayers()
-    print('Wait 30 seconds before running again!')
+    

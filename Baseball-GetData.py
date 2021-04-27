@@ -27,7 +27,7 @@ def setUpDatabase(db_name):
 
 def create_id_list():
     '''
-    Returns a list of all of the team ids from the API --> 30 teams
+    Returns a list of all of the team ids from the MLB in the API --> 30 teams
     Used in create_pitchers_list()
     '''
     url = "https://mlb-data.p.rapidapi.com/json/named.team_all_season.bam"
@@ -50,7 +50,7 @@ def create_id_table():
     Creates a table of player IDs
     Players only added to table if their position is pitcher
     Pitcher hand (0 or 1) is also a column in the table --> 0 is L, 1 is R
-    25 new players added on each run by using a count
+    10 new players added on each run by using a count
     '''
     cur, conn = setUpDatabase('balldontlie.db')
     cur.execute('CREATE TABLE IF NOT EXISTS IDs (id INTEGER PRIMARY KEY, player_id INTEGER UNIQUE, hand INTEGER)')
@@ -88,7 +88,7 @@ def create_table():
     '''
     Creates a table of Pitchers with there ERA and WHIP
     Pitchers only added to database if stats are available (cleaning)
-    Max of 25 added at a time but could be less by using 'max(id)'
+    Max of 10 added at a time (but could be less) by using 'max(id)'
     '''
     cur, conn = setUpDatabase('balldontlie.db')
     cur.execute('CREATE TABLE IF NOT EXISTS Pitchers (id INTEGER PRIMARY KEY, player_id INTEGER UNIQUE, era INTEGER, whip INTEGER)')
@@ -165,6 +165,7 @@ def main():
     print('Taking a quick break before cleaning!')
     time.sleep(15)
     create_table()
+    print('Done! Wait 15 seconds before running again')
 
 
 if __name__ == '__main__':

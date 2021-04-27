@@ -2,6 +2,8 @@ import sqlite3
 import os
 import json
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+
 
 def setUpDatabase(db_name):
     '''
@@ -32,7 +34,11 @@ def doCalc(filename):
     l_whip = []
     r_era = []
     r_whip = []
+    total_era = []
+    total_whip = []
     for pair in db_data:
+        total_era.append(pair[0])
+        total_whip.append(pair[1])
         if pair[2] == 1:
             r_era.append(pair[0])
             r_whip.append(pair[1])
@@ -41,10 +47,10 @@ def doCalc(filename):
             l_whip.append(pair[1])
 
     data['Baseball'] = {'ERA': {'Left': sum(l_era)/len(l_era), 'Right': sum(r_era)/len(r_era)}, 
-    'WHIP': {'Left': sum(l_whip)/len(l_whip), 'Right': sum(r_whip)/len(r_whip)}}
+    'WHIP': {'Left': sum(l_whip)/len(l_whip), 'Right': sum(r_whip)/len(r_whip)}, 'Total': {'ERA': total_era, 'WHIP': total_whip}}
 
     with open(full_path, 'w') as f:
-        json.dump(data, f)
+        json.dump(data, f, indent=4)
     
     
 def showViz(filename):
@@ -59,22 +65,30 @@ def showViz(filename):
     with open(full_path, 'r') as jsonFile:
         data = json.load(jsonFile)
     
-    fig, (ax1, ax2) = plt.subplots(1, 2)
+    gs = gs = gridspec.GridSpec(2, 2)
+    fig = plt.figure()
 
     data = data['Baseball']
     x = data['ERA'].keys()
     y = data['ERA'].values()
 
-    ax1.bar(x, y, align='center', alpha=0.5)
-    ax1.set(xlabel='Average ERA', ylabel='Hand', title='Average ERA for Right vs. Left Handed Pitchers', ylim=(4.3, 5.5))
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax1.bar(x, y, align='center', alpha=0.5, color=['yellow'])
+    ax1.set(ylabel='Average ERA', xlabel='Hand', title='Average ERA for Right vs. Left Handed Pitchers in MLB')
 
     x = data['WHIP'].keys()
     y = data['WHIP'].values()
 
-    ax2.bar(x, y, align='center', alpha=0.5)
-    ax2.set(xlabel='Average WHIP', ylabel='Hand', title='Average WHIP for Right vs. Left Handed Pitchers', ylim=(1.3, 1.6))
+    ax2 = fig.add_subplot(gs[0, 1])
+    ax2.bar(x, y, align='center', alpha=0.5, color=['green'])
+    ax2.set(ylabel='Average WHIP', xlabel='Hand', title='Average WHIP for Right vs. Left Handed Pitchers in MLB')
+
+    ax3 = fig.add_subplot(gs[1, :])
+    ax3.scatter(data['Total']['ERA'], data['Total']['WHIP'], color='grey')
+    ax3.set(xlabel='ERA', ylabel='WHIP', title='Scatterplot of ERA vs. WHIP for All Pitchers')
 
     plt.show()
+
 
 if __name__ == '__main__':
     doCalc('data.json')

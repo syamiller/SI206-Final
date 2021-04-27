@@ -17,7 +17,9 @@ def setUpDatabase(db_name):
 def doCalc(filename):
     '''
     Do the Calculations:
-    - Get number of players from each country
+    - Get the average height of each player by position (0-3)
+    Input is json file that hold data
+    New calculations then outputted to json file as new key 'Soccer'
     '''
     full_path = os.path.join(os.path.dirname(__file__), filename)
     with open(full_path, 'r') as jsonFile:
@@ -28,7 +30,6 @@ def doCalc(filename):
     cur.execute('SELECT height, position FROM Players')
 
     player_heights = cur.fetchall()
-    #print(player_heights)
     defender = []
     attacker = []
     goalie = []
@@ -52,7 +53,7 @@ def doCalc(filename):
     data['Soccer'] = {'Attacker': avg_attacker, 'Midfielder': avg_mid, 'Defender': avg_defender, 'Goalkeeper': avg_goalie}
 
     with open(full_path, 'w') as f:
-       json.dump(data, f)    
+       json.dump(data, f, indent=4)    
     
 
 def showViz(filename):
@@ -61,7 +62,6 @@ def showViz(filename):
     Bar chart of heights by different position
     Input is json file with the data
     Output is the visual
-    - 
     '''
     full_path = os.path.join(os.path.dirname(__file__), filename)
     with open(full_path, 'r') as jsonFile:
@@ -70,14 +70,14 @@ def showViz(filename):
     heights = data['Soccer'].values()
     positions = data['Soccer'].keys()
 
-    plt.bar(positions, heights, align='center', alpha=0.5)
+    plt.bar(positions, heights, align='center', alpha=0.5, color=['blue'])
     plt.ylabel('Average Heights (cm)')
     plt.xlabel('Positions')
-    plt.title('Average Heights By Position')
+    plt.title('Average Heights By Position for Players in Premier League')
     plt.ylim(145, 195)
 
     plt.show()
  
 if __name__ == '__main__':
     doCalc('data.json')
-    # showViz('data.json')
+    showViz('data.json')

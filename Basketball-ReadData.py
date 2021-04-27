@@ -18,8 +18,8 @@ def doCalc(filename, teams):
     '''
     Get average total game score for the team 
     Input: json file that holds data
-    Input: List of team names that have data for.. if data does not exxist or spelled wrong, function will inform you
-    Data then added and outputted to the json file as a new key  
+    Input: List of team names that have data for.. if data does not exist or spelled wrong, function will inform you
+    Data then added and outputted to the json file as new key 'Basketball'
     '''
     cur, conn = setUpDatabase('balldontlie.db')
     full_path = os.path.join(os.path.dirname(__file__), filename)
@@ -47,12 +47,11 @@ def doCalc(filename, teams):
         data['Basketball'][team] = avg
 
         with open(full_path, 'w') as outfile:
-            json.dump(data, outfile)
-    showViz(filename)
+            json.dump(data, outfile, indent=4)
     
 def showViz(filename):
     '''
-    Create a bar chart that shows average total game score for three teams
+    Create a bar chart that shows average total game score for the teams
     team name on x axis
     average total game score on y axis
     Input is json file that holds the data needed for the bar charts
@@ -67,12 +66,13 @@ def showViz(filename):
     teams = data.keys()
     values = data.values()
 
-    plt.bar(teams, values, align='center', alpha=0.5)
+    plt.bar(teams, values, align='center', alpha=0.5, color=['orange', 'purple'])
     plt.ylabel(f'Average Total Game Score')
     plt.xlabel('Team Name')
-    plt.title('Average Score')
+    plt.title('Average Score for Each Team for 2017 and 2018 Season')
 
     plt.show()
 
 if __name__ == '__main__':
     doCalc('data.json', ['Knicks', 'Lakers'])
+    showViz('data.json')
