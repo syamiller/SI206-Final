@@ -30,7 +30,7 @@ def createGamesTable():
     User Input is team name, must be spelled correctly or function will inform you that the team does not exist
     User also inputs a page number 1-7
     Output is the table
-    Max of 25 games added per time as we limit the amount of games per page to 25
+    Max of 25 games added per time as we limit the amount of games per API request to 25
     '''
     cur, conn = setUpDatabase('balldontlie.db')
     teams_url = 'https://balldontlie.io/api/v1/teams'
@@ -44,7 +44,9 @@ def createGamesTable():
         if org['name'] == team:
             team_id = org['id']
             break
-    if team_id is None: print('Sorry, invalid team name :(')
+    if team_id is None:
+        print('Sorry, invalid team name :(')
+        return
 
     print(f'Creating or Updating a table for {team}')
     cur.execute(f'CREATE TABLE IF NOT EXISTS {team} (id INTEGER PRIMARY KEY, game_id INTEGER UNIQUE, home_team_score INTEGER, away_team_score INTEGER)')
